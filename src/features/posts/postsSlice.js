@@ -39,12 +39,13 @@ const postsSlice = createSlice({
                // immer.js is active in createSlice which prevents mutation of state in createSlice so we don't have to spread the state everytime
                state.push(action.payload)
             },
-            prepare(title, content){
+            prepare(title, content, userId){
                 return {
                     payload: {
                         id: nanoid(),
                         title,
-                        content
+                        content,
+                        userId
                     }
                 }
             }
