@@ -2,6 +2,7 @@ import { useSelector } from "react-redux"
 import { selectAllPosts } from "../features/posts/postsSlice"
 import PostAuthor from "./PostAuthor"
 import TimeAgo from "./TimeAgo"
+import ReactionBtns from "./ReactionBtns"
 
 
 const PostsLists = () => {
@@ -21,6 +22,7 @@ const PostsLists = () => {
                 <PostAuthor userId = {post.userId} />
                 <TimeAgo timestamp={post.date} />
             </p>
+            <ReactionBtns post= {post} />
         </article>
     ))
 
