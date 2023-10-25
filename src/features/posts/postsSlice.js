@@ -22,6 +22,12 @@ export const addNewPost = createAsyncThunk('posts/addNewPost', async (initialPos
     return response.data
 })
 
+export const updatePost = createAsyncThunk('posts/updatePost', async (initialPost) => {
+    const {id} = initialPost
+    const response = await axios.put(`${POSTS_URL}/${id}`, initialPost)
+    return response.data
+})
+
 const postsSlice = createSlice({
     name:"posts",
     initialState,
@@ -101,6 +107,17 @@ const postsSlice = createSlice({
                 }
                 state.posts.push(action.payload)
             })
+            .addCase(updatePost.fulfilled, (state, action) => {
+                if(!action.payload?.id){
+                    console.log('Update could not complete')
+                    console.log(action.payload)
+                    return
+                }
+                const {id} = action.payload
+                action.payload.date = new Date().toISOString()
+                const posts = state.posts.filter(post => post.id !== id)
+                state.posts = action.payload
+            })
     }
 })
 
@@ -112,7 +129,7 @@ export const getPostsStatus = (state) => state.posts.status
 export const getPostsError = (state) => state.posts.error
 
 export const selectPostById = (state, postId) => {
-    state.posts.posts.find(post => post.id === postId)
+   return state.posts.posts.find(post => post.id === postId)
 }
 
 // whenever we use createSlice it creates an createActions method with the same name as our reducer method automatically and that's why we don't see the postSlice.actions in the code written explicitly
