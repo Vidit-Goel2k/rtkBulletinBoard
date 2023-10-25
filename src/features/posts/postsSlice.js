@@ -109,10 +109,11 @@ const postsSlice = createSlice({
 export const selectAllPosts = (state) => state.posts.posts
 
 export const getPostsStatus = (state) => state.posts.status
-
 export const getPostsError = (state) => state.posts.error
 
-
+export const selectPostById = (state, postId) => {
+    state.posts.posts.find(post => post.id === postId)
+}
 
 // whenever we use createSlice it creates an createActions method with the same name as our reducer method automatically and that's why we don't see the postSlice.actions in the code written explicitly
 export const {postAdded, reactionAdded} = postsSlice.actions
