@@ -116,7 +116,10 @@ const postsSlice = createSlice({
                 const {id} = action.payload
                 action.payload.date = new Date().toISOString()
                 const posts = state.posts.filter(post => post.id !== id)
-                state.posts = action.payload
+                // typeof(action.payload) === 'object' that's why below statement will produce error in selectPostById method when find is called on an object
+                // state.posts = action.payload
+                // to correct this error we have to spread the state and add the action.payload to it in an array as done below
+                state.posts = [...posts, action.payload]
             })
     }
 })
@@ -129,7 +132,7 @@ export const getPostsStatus = (state) => state.posts.status
 export const getPostsError = (state) => state.posts.error
 
 export const selectPostById = (state, postId) => {
-   return state.posts.posts.find(post => post.id === postId)
+    return state.posts.posts.find(post => post.id === postId)
 }
 
 // whenever we use createSlice it creates an createActions method with the same name as our reducer method automatically and that's why we don't see the postSlice.actions in the code written explicitly
