@@ -7,7 +7,9 @@ import { Provider } from 'react-redux'
 import { store } from './app/store.js'
 import { fetchUsers } from './features/users/usersSlice';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { fetchPosts } from './features/posts/postsSlice.js'
 
+store.dispatch(fetchPosts())
 store.dispatch(fetchUsers())
 
 ReactDOM.createRoot(document.getElementById('root')).render(
