@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, nanoid } from "@reduxjs/toolkit"
+import { createAsyncThunk, createSelector, createSlice, nanoid } from "@reduxjs/toolkit"
 import axios from "axios"
 import { sub } from "date-fns"
 const POSTS_URL = "https://jsonplaceholder.typicode.com/posts"
@@ -7,6 +7,7 @@ const initialState = {
     posts: [],
     status: 'idle', // 'idle | 'loading' | 'succeeded' | 'failed'
     error: null,
+    count:0,
 }
 
 // createAsyncThunk is a utility provided by Redux Toolkit to simplify the process of creating asynchronous actions, such as fetching data from an API.
@@ -49,39 +50,44 @@ const postsSlice = createSlice({
     name:"posts",
     initialState,
     reducers:{
-        postAdded: {
-            reducer(state, action) {
-               // immer.js is active in createSlice which prevents mutation of state in createSlice so we don't have to spread the state everytime
-               state.posts.push(action.payload)
-            },
-            // used to abstract the structure of our posts state,
-            // so that each component does'nt need to provide the exact structure and can just pass the arguments which are required as a method
-            prepare(title, content, userId){
-                return {
-                    payload: {
-                        id: nanoid(),
-                        title,
-                        content,
-                        date: new Date().toISOString(),
-                        userId,
-                        reactions: {
-                            thumbsUp: 0,
-                            wow: 0,
-                            heart: 0,
-                            rocket: 0,
-                            coffee: 0
-                        },
-                    }
-                }
-            }
-        },
+        // postAdded: {
+        //     reducer(state, action) {
+        //        // immer.js is active in createSlice which prevents mutation of state in createSlice so we don't have to spread the state everytime
+        //        state.posts.push(action.payload)
+        //     },
+        //     // used to abstract the structure of our posts state,
+        //     // so that each component does'nt need to provide the exact structure and can just pass the arguments which are required as a method
+        //     prepare(title, content, userId){
+        //         return {
+        //             payload: {
+        //                 id: nanoid(),
+        //                 title,
+        //                 content,
+        //                 date: new Date().toISOString(),
+        //                 userId,
+        //                 reactions: {
+        //                     thumbsUp: 0,
+        //                     wow: 0,
+        //                     heart: 0,
+        //                     rocket: 0,
+        //                     coffee: 0
+        //                 },
+        //             }
+        //         }
+        //     }
+        // },
+
         reactionAdded (state, action)  {
             const {postId, reaction} = action.payload
             const existingPost = state.posts.find(post=> post.id === postId)
             if(existingPost){
                 existingPost.reactions[reaction]++
             }
-        }
+        },
+
+        increaseCount(state, action){
+            state.count = state.count + 1 
+        },
     },
     // extraReducers section is handling the different states of the fetchPosts action effectively. It updates the state based on whether the action is pending, fulfilled, or rejected, and it adds timestamps and initial reactions to the posts when the data is successfully fetched. Additionally, it captures and displays the error message if there is an issue with the API request.
     extraReducers(builder){
@@ -154,15 +160,20 @@ const postsSlice = createSlice({
 // used to abstract the selection of all posts from each component to the postSlice,
 // usefull in cases where we change the structure of posts in later refactoring of code.  
 export const selectAllPosts = (state) => state.posts.posts
-
 export const getPostsStatus = (state) => state.posts.status
 export const getPostsError = (state) => state.posts.error
+export const getCount = (state) => state.posts.count
 
 export const selectPostById = (state, postId) => {
     return state.posts.posts.find(post => post.id === postId)
 }
 
+export const selectPostByUser = createSelector(
+    [selectAllPosts, (state, userId) => userId],
+    (posts, userId) => posts.filter(post=> post.userId === userId)
+)
+
 // whenever we use createSlice it creates an createActions method with the same name as our reducer method automatically and that's why we don't see the postSlice.actions in the code written explicitly
-export const {postAdded, reactionAdded} = postsSlice.actions
+export const {increaseCount, reactionAdded} = postsSlice.actions
 
 export default postsSlice.reducer
